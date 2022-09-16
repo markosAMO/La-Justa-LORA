@@ -1,5 +1,5 @@
 #include <DHT.h>
-#include <RTCZero.h>
+
 // Macros
 #define debugSerial SerialUSB
 #define loraSerial Serial1
@@ -45,22 +45,8 @@ float TEMPERATURA;
 DHT dht(SENSOR,DHT11);
 char cmd[200];
 uint8_t LoRaWANPayload[4];
-int contador = 0; //para realizar los 5 minutos de lecturas, aprox cada envío toma 30 segundos
 
-/* Change these values to set the current initial time */
-const byte seconds = 0;
-const byte minutes = 00;
-const byte hours = 17;
 
-/* Change these values to set the current initial date */
-const byte day = 17;
-const byte month = 11;
-const byte year = 15;
-
-int matchSS;
-
-/* Create an rtc object */
-RTCZero rtc;
 
 /*
  * Vacia el buffer de recepcion desde el modulo LoRa
@@ -128,41 +114,6 @@ void loraSendData(int port, uint8_t *data, uint8_t dataSize)
     loraWaitResponse(10000);
 }
 
-void allOutputs()
-{
-  // Configura los pines como salidas o entradas con pull-up
-  // o estado definido, porque si quedan flotando aumenta el consumo
-  pinMode(0,OUTPUT);
-  pinMode(1,OUTPUT);
-  pinMode(2,OUTPUT);
-  pinMode(3,OUTPUT);
-  pinMode(4,OUTPUT);
-  pinMode(5,OUTPUT);
-  pinMode(6,OUTPUT);
-  pinMode(7,OUTPUT);
-//  pinMode(8,OUTPUT);
-  pinMode(9,OUTPUT);
-  pinMode(10,OUTPUT);
-  pinMode(11,OUTPUT);
-  pinMode(12,OUTPUT);
-  pinMode(13,OUTPUT);
-  pinMode(PIN_BUTTON, INPUT_PULLUP); 
-  pinMode(14,OUTPUT);
-  pinMode(15,OUTPUT);
-  pinMode(16,OUTPUT);
-  pinMode(17,OUTPUT);
-  pinMode(18,OUTPUT);
-  pinMode(19,OUTPUT);
-  pinMode(20,OUTPUT);
-  pinMode(21,OUTPUT);
-  pinMode(A0,OUTPUT);
-  pinMode(A1,OUTPUT);
-  pinMode(A2,OUTPUT);
-  pinMode(A3,OUTPUT);
-}
-
-
-
 /*
  * Funcion de inicializacion
  */
@@ -183,55 +134,14 @@ void setup() {
   digitalWrite(PIN_LED, LOW);
   loraSendCommand("sys reset");
   loraSendCommand("sys get hweui");
-  // Arranca el RTC
-  rtc.begin();
-  rtc.setTime(hours, minutes, seconds);
-  rtc.setDate(day, month, year);
-
-  // Inicia un match para que interrumpa a la hora
-  matchSS = 18;
-  rtc.setAlarmTime(matchSS, 00, 0);
-  rtc.enableAlarm(rtc.MATCH_HHMMSS);
-  rtc.attachInterrupt(alarmMatch);
-
-  
   dht.begin();
-}
-
-bool doLowPower()
-{
-  // pone al modulo LoRa en bajo consumo
-  loraSendCommand("sys sleep 120000");
- 
-  // Entra en bajo consumo hasta que interrumpa el RTC
-  digitalWrite(PIN_LED, HIGH);  // Apaga el LED
-  USBDevice.detach();           // apaga el USB
-  rtc.standbyMode();            // Sleep until next alarm match
-
-  // Al despertar retoma el USB
-  USBDevice.init();
-  USBDevice.attach();           // recupera el USB
   
-  delay(500);
-  loraSendCommand("radio get snr");
-  delay(1000);
-  loraSendCommand("radio get snr");
-
-  if(!response[0]) {
-    digitalWrite(loraReset, LOW);
-    delay(1000);
-    digitalWrite(loraReset, HIGH);
-    loraWaitResponse(2000);
-    return false;
-  }
-
-  return true;
+   
 }
-
 
 void loop() {
   static int i, dr;
-  delay(5000); //ESPERA 1 MINUTO. CAMBIAR POR MILLIS QUE ES NO BLOQUEANTE
+  delay(4000); //ESPERA 1 MINUTO. CAMBIAR POR MILLIS QUE ES NO BLOQUEANTE
   HUMEDAD = dht.readHumidity();
   debugSerial.print("HUMEDAD: ");
   debugSerial.println(HUMEDAD);
@@ -280,23 +190,11 @@ void loop() {
           digitalWrite(PIN_LED, HIGH);
           i = 0;
         }
-        contador++;
-        if(contador==10){
-        contador = 0;
-        if (!doLowPower()){
-            state = INIT;
-        }
         delay(200);
         digitalWrite(PIN_LED, LOW);
-       }
-      }else
+      }
+      else
         state = INIT;
       break;
   }
 }
-void alarmMatch()
-  {
-    // Larga de nuevo la alarma 2h adelante
-    matchSS = (matchSS + 2) % 24; 
-    rtc.setAlarmTime(matchSS, 00, 0);
-  }
