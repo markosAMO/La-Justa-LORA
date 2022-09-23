@@ -42,7 +42,7 @@ static enum {
 float SENSOR = 8;
 float HUMEDAD;
 float TEMPERATURA;
-DHT dht(SENSOR,DHT11);
+DHT dht(SENSOR,DHT22);
 char cmd[200];
 uint8_t LoRaWANPayload[4];
 
