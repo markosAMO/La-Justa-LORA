@@ -40,14 +40,14 @@ static enum {
   JOIN, JOINED
 } state;
 
-float SENSOR = 8;
 float SENSOR = 9;
+float SENSOR2 = 8;
 float HUMEDAD;
 float TEMPERATURA;
 float HUMEDAD2;
 float TEMPERATURA2;
 DHT dht(SENSOR,DHT22);
-DHT dht2(SENSOR2,DHT11);
+DHT dht2(SENSOR2,DHT22);
 char cmd[200];
 uint8_t LoRaWANPayload[8];
 int contador = 0; //para realizar los 5 minutos de lecturas, aprox cada envío toma 30 segundos
