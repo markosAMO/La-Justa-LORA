@@ -242,7 +242,7 @@ bool doLowPower()
 
 void loop() {
   static int i, dr;
-  delay(5000); //ESPERA 1 MINUTO. CAMBIAR POR MILLIS QUE ES NO BLOQUEANTE
+  delay(5000); 
   HUMEDAD = dht.readHumidity();
   debugSerial.print("HUMEDAD: ");
   debugSerial.println(HUMEDAD);
@@ -250,7 +250,7 @@ void loop() {
   TEMPERATURA = dht.readTemperature();
   debugSerial.print("TEMPERATURA: ");
   debugSerial.println(TEMPERATURA);
-  delay(4000); //ESPERA 1 MINUTO. CAMBIAR POR MILLIS QUE ES NO BLOQUEANTE
+  delay(5000); 
   HUMEDAD2 = dht2.readHumidity();
   debugSerial.print("HUMEDAD2: ");
   debugSerial.println(HUMEDAD2);
@@ -305,12 +305,12 @@ void loop() {
         }
         contador++;
         if(contador==10){
-        contador = 0;
-        if (!doLowPower()){
-            state = INIT;
-        }
-        delay(200);
-        digitalWrite(PIN_LED, LOW);
+          contador = 0;
+          if (!doLowPower()){
+              state = INIT;
+          }
+          delay(200);
+          digitalWrite(PIN_LED, LOW);
        }
       }else
         state = INIT;

@@ -178,12 +178,15 @@ void setup() {
 bool doLowPower()
 {
   // pone al modulo LoRa en bajo consumo
-  loraSendCommand("sys sleep 3600000"); //duerme 1 hora
-  USBDevice.detach();           // apaga el USB
+  loraSendCommand("sys sleep 3000"); //duerme 1 hora
+  debugSerial.println("se duerme por x tiempo");
+  USBDevice.detach();
   LowPower.sleep(3600000); //se duerme una hora
- // Al despertar retoma el USB
   USBDevice.init();
-  USBDevice.attach();           // recupera el USB
+  USBDevice.attach();
+  delay(60000);
+  debugSerial.println("se despierta");
+ // Al despertar retoma el USB
   // Entra en bajo consumo hasta que interrumpa el RTC
   digitalWrite(PIN_LED, HIGH);  // Apaga el LED
   delay(60000);
@@ -256,7 +259,7 @@ void loop() {
           i = 0;
         }
         contador++;
-        if(contador==15){
+        if(contador==3){
         contador = 0;
         if (!doLowPower()){
             state = INIT;
