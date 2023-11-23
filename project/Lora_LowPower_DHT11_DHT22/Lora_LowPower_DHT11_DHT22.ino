@@ -163,8 +163,8 @@ void setup() {
   rtc.setTime(hours, minutes, seconds);
   rtc.setDate(day, month, year);
   // Inicia un match para que interrumpa a la hora
-  matchSS = 5;
-  rtc.setAlarmTime(17, matchSS, 0);
+  matchSS = 18;
+  rtc.setAlarmTime(matchSS, 00, 0);
   rtc.enableAlarm(rtc.MATCH_HHMMSS);
   rtc.attachInterrupt(alarmMatch);
   dht.begin();
@@ -173,7 +173,7 @@ void setup() {
 bool doLowPower()
 {
   // pone al modulo LoRa en bajo consumo por una hora
-  loraSendCommand("sys sleep 120000");
+  loraSendCommand("sys sleep 3500000");
   // Entra en bajo consumo hasta que interrumpa el RTC
   digitalWrite(PIN_LED, HIGH);  // Apaga el LED
   debugSerial.println("entrara en bajo consumo el cortex m0 por 20 minutos");
@@ -242,7 +242,7 @@ void loop() {
       }
       break;
     case JOINED:
-      if (i++ < 10) {
+      if (i++ < 3) {
         LoRaWANPayload[0] = GET_INTEGER_PART_UNSIGNED_MAX255(TEMPERATURA);
         LoRaWANPayload[1] = GET_FRACTIONAL_PART_MAX255(TEMPERATURA);
         LoRaWANPayload[2] = GET_INTEGER_PART_UNSIGNED_MAX255(HUMEDAD);
@@ -264,6 +264,6 @@ void loop() {
 void alarmMatch()
   {
     // Larga de nuevo la alarma 1h adelante
-    matchSS = (matchSS + 20) % 60;
-    rtc.setAlarmTime(17, matchSS, 00);
+    matchSS = (matchSS + 1) % 24;
+    rtc.setAlarmTime(matchSS, 00, 00);
   }
