@@ -13,7 +13,7 @@
 #define DEV_DEVADDR   "99887766"
 //MACROS
 /**
- * @brief Retorna la parte entera de un número de punto flotante positivo. Si el num es > a 255, retorna 255
+ * @brief Retorna la parte entera de un número de punto flotante positivo. Si el num es > a 255, retorna 255 
  * @return uint8_t (max 255)
  *
  */
@@ -98,7 +98,7 @@ void loraSendData(int port, uint8_t *data, uint8_t dataSize)
   char *p;
   int i;
   uint8_t c;
-  sprintf(cmd, "mac tx uncnf %d ", port);
+  sprintf(cmd, "mac tx cnf %d ", port);
   p = cmd + strlen(cmd);
   for (i=0; i<dataSize; i++) {
     c = *data++;
@@ -107,6 +107,8 @@ void loraSendData(int port, uint8_t *data, uint8_t dataSize)
   }
   *p++ = 0;
   loraSendCommand(cmd);
+  if (strstr(response, "ok"))
+    loraWaitResponse(10000);
 }
 void allOutputs()
 {
@@ -253,7 +255,12 @@ void loop() {
         LoRaWANPayload[7] = GET_FRACTIONAL_PART_MAX255(HUMEDAD2);
         loraSendData(1, LoRaWANPayload, 8);
         digitalWrite(PIN_LED, HIGH);
-        
+        if (strstr(response, "mac_tx_ok")) {
+          delay(200);
+          digitalWrite(PIN_LED, LOW);
+          delay(200);
+          digitalWrite(PIN_LED, HIGH);
+        }
       }else{
         state = INIT;
         doLowPower();
